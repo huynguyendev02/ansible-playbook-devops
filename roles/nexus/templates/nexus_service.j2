@@ -1,0 +1,14 @@
+[Unit]
+Description=nexus service
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/opt/nexus/nexus-3.56.0-01/bin/nexus start
+ExecStop=/opt/nexus/nexus-3.56.0-01/bin/nexus stop
+User=nexus
+#If there are spaces, I would strings within quotes like above
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

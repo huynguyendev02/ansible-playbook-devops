@@ -1,0 +1,4 @@
+---
+# defaults file for jenkins
+
+jenkins_pass_path: /var/lib/jenkins/secrets/initialAdminPassword

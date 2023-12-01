@@ -1,0 +1,93 @@
+---
+- name: Create user and grant privileges for 'sonarqube' Database
+  become: true
+  become_user: "{{ db_user }}"
+  vars:
+      ansible_python_interpreter: /usr/bin/python3
+  postgresql_user:
+    db: "{{ db_name }}"
+    name: "{{ sonarqube_user }}"
+    password: "{{ sonarqube_pass }}"
+    role_attr_flags: SUPERUSER,CREATEROLE,CREATEDB,REPLICATION,BYPASSRLS
+
+- name: Create folder for Sonarqube service
+  become: true
+  file:
+    path: "{{ sonarqube_install_path }}"
+    state: directory
+
+- name: Download sonarqube
+  become: true
+  get_url:
+    url:  "{{ sonarqube_install_url }}"
+    dest: "{{ sonarqube_install_path }}"
+
+- name: Extract the downloaded file
+  become: true
+  unarchive:
+    src:  "{{ sonarqube_install_path }}/{{ sonarqube_install_url | basename }}"
+    dest: "{{ sonarqube_install_path }}"
+    remote_src: true
+
+- name: Configure Sonarqube service
+  become: true
+  template:
+    src: sonarqube_config.j2
+    dest: "{{ sonarqube_install_path }}/{{ sonarqube_extracted_path }}/conf/sonar.properties"
+
+- name: Change folder '{{ sonarqube_install_path }}' permission for execution
+  become: true
+  file:
+    path: "{{ sonarqube_install_path }}"
+    recurse: true
+    owner: "{{ sonar_user }}"
+    group: "{{ sonar_user }}"
+    mode: "0744"
+
+- name: Add privileges escalation for user '{{ sonar_user }}'
+  become: true
+  lineinfile:
+    path: /etc/sudoers
+    line: "{{ sonar_user }} ALL=(ALL) NOPASSWD: ALL"
+
+- name: Add Sonarqube to system services
+  become: true
+  template:
+    src: sonarqube_service.j2
+    dest: "{{ sonarqube_service_config_path }}"
+
+- name: Apply system service configuration
+  become: true
+  systemd:
+    daemon_reload: true
+
+- name: Creates folder for Sonarqube data
+  become: true
+  file:
+    path: /var/sonarqube
+    state: directory
+
+- name: Change folder '/var/sonarqube' permission for execution
+  become: true
+  file:
+    path: /var/sonarqube
+    recurse: true
+    owner: "{{ sonar_user }}"
+    group: "{{ sonar_user }}"
+    mode: "0744"
+
+- name: Start & enable Sonarqube service
+  become: true
+  service:
+    name: sonarqube
+    state: started
+    enabled: true
+
+- name: Allow port 9000 for Sonarqube service in 'firewalld'
+  become: true
+  firewalld:
+    port: 9000/tcp
+    permanent: true
+    state: enabled
+    immediate: true
+  when: ansible_os_family == "RedHat"

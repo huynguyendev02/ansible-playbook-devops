@@ -1,0 +1,31 @@
+---
+- name: Install Java 17
+  become: true
+  apt:
+    deb: "/home/{{ os_user }}/{{ java17_package | basename }}"
+    state: present
+
+- name: Add GPG key to verify PostgreSQL package
+  become: true
+  apt_key:
+    url: "{{ postgres_verify_key }}"
+    state: present
+
+- name: Get Debian distro version name
+  shell: echo $(lsb_release -cs)
+  register: distro_name
+
+- name: Add PostgreSQL repo
+  become: true
+  apt_repository:
+    repo: "{{ postgres_repo_url }}"
+    state: present
+    update_cache: true
+
+- name: Install PostgreSQL
+  become: true
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  loop: "{{ postgres_package }}"

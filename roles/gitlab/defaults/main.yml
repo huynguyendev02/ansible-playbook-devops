@@ -1,0 +1,4 @@
+---
+# defaults file for gitlab
+
+gitlab_pass: /etc/gitlab/initial_root_password

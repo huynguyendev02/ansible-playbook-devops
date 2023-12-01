@@ -1,0 +1,9 @@
+---
+repo_install:
+- curl
+- openssh-server
+- ca-certificates
+- tzdata
+- perl
+
+gitlab_package_url: https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh

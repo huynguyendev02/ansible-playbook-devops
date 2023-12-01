@@ -1,0 +1,60 @@
+---
+- name: Download nexus installation file
+  become: true
+  get_url:
+    url: "{{ nexus_download_url }}"
+    dest: "{{ nexus_install_path }}/{{ nexus_download_url | basename}}"
+
+- name: Install 'unzip' package
+  become: true
+  yum:
+    name: unzip
+    state: present
+
+- name: Extract the downloaded file
+  become: true
+  unarchive:
+    src: "{{ nexus_install_path }}/{{ nexus_download_url | basename}}"
+    dest: /opt/nexus
+    remote_src: true
+
+- name: Change folder '/opt/nexus' permission for execution
+  become: true
+  file:
+    path: "{{ nexus_install_path }}"
+    recurse: true
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_user }}"
+    mode: "0744"
+
+- name: Install JDK 8
+  become: true
+  yum:
+    name: "{{ repo_install }}"
+    state: present
+
+- name: Add Nexus service configuration file
+  become: true
+  template:
+    src: nexus_service.j2
+    dest: /etc/systemd/system/nexus.service
+
+- name: Apply Nexus service's configuration
+  become: true
+  systemd:
+    daemon_reload: true
+
+- name: Start Nexus service
+  become: true
+  service:
+    name:  "{{ service_name }}"
+    state: started
+
+- name: Enable port 8081 for Nexus service
+  become: true
+  firewalld:
+    port: "8081/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+  when: ansible_os_family == "RedHat"

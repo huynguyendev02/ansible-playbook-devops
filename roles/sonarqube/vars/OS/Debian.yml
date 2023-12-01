@@ -1,0 +1,22 @@
+---
+java17_package: https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.deb
+
+# Add package information
+postgres_repo_url: deb http://apt.postgresql.org/pub/repos/apt {{ distro_name.stdout }}-pgdg main
+postgres_verify_key: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+postgres_key_path: /etc/apt/sources.list.d/pgdg.list
+
+repo_install:
+- wget
+- curl
+- unzip
+- python3-pip
+- libpq-dev
+
+postgres_package:
+- postgresql-14
+
+# Config PostgreSQL service
+postgres_host_auth_config: /etc/postgresql/14/main/pg_hba.conf
+postgres_config: /etc/postgresql/14/main/postgresql.conf
+postgres_service_name: postgresql

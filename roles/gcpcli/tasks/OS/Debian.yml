@@ -1,0 +1,28 @@
+---
+- name: Install pre-requisite packages
+  become: true
+  apt:
+   name: "{{ item }}"
+   state: present
+  loop: "{{ repo_install }}"
+
+- name: Add Google Cloud public key
+  become: true
+  apt_key:
+    url: "{{ key_url }}"
+    keyring: "{{ key_path }}"
+    state: present
+
+- name: Add GCloud CLI as Package resource
+  become: true
+  apt_repository:
+    repo: "{{ repo_url }}"
+    state: present
+
+
+- name: Install Google Cloud CLI package
+  become: true
+  apt:
+    update_cache: true # yum update
+    name: google-cloud-cli
+    state: present

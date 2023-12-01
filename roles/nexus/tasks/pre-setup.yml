@@ -1,0 +1,14 @@
+---
+- name: Add user '{{ nexus_user }}' with password '{{ nexus_pass }}'
+  become: true
+  user:
+    name: "{{ nexus_user }}"
+    password: "{{ nexus_pass | password_hash('sha512', 'nexus_salt') }}"
+    comment: "User for Nexus service"
+    create_home: true # Default
+
+- name: Creates folder for Nexus service
+  become: true
+  file:
+    path: "{{ nexus_install_path }}"
+    state: directory

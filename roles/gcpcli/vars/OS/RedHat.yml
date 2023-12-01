@@ -1,0 +1,5 @@
+---
+# Add package information
+repo_url: https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64
+repo_management_path: /etc/yum.repos.d/google-cloud-sdk.repo
+key_verify_url: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg

@@ -1,0 +1,22 @@
+---
+java17_package: https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.rpm
+postgres_package_url: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+
+repo_install:
+- wget
+- curl
+- unzip
+- postgresql-libs
+- postgresql-devel
+- python3-pip
+- python3
+- python3-devel
+
+postgres_package:
+- postgresql14
+- postgresql14-server
+
+# Config PostgreSQL service
+postgres_host_auth_config:  /var/lib/pgsql/14/data/pg_hba.conf
+postgres_config: /var/lib/pgsql/14/data/postgresql.conf
+postgres_service_name: postgresql-14

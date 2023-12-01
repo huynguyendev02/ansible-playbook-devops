@@ -1,0 +1,64 @@
+---
+- name: Check if PostgreSQL is initialized
+  become: true
+  stat:
+    path: /var/lib/pgsql/14/data/pg_hba.conf # Configuration DB file path for PostgreSQL 14
+  register: chck_postgres_init
+
+- name: Initialize PostgreSQL
+  become: true
+  command: /usr/pgsql-14/bin/postgresql-14-setup initdb
+  when: not chck_postgres_init.stat.exists and ansible_os_family == "RedHat"
+
+- name: Enable PostgreSQL service
+  become: true
+  systemd:
+    name: "{{ postgres_service_name }}"
+    state: started
+    enabled: true
+
+- name: Install PostgreSQL connector
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  pip:
+    name: "{{ item }}"
+    state: latest
+  loop:
+  - psycopg2
+
+- name: Reconfigure for PostgreSQL Database
+  become: true
+  template:
+    src: postgres_configuration.j2
+    dest: "{{ postgres_host_auth_config }}"
+
+- name: Add listening address
+  become: true
+  lineinfile:
+    path: "{{ postgres_config }}"
+    line: listen_addresses = 'localhost'
+
+- name: Restart PostgreSQL Service
+  become: true
+  systemd:
+    name: "{{ postgres_service_name }}"
+    state: restarted
+
+- name: Change password of default-generated user 'postgres'
+  become: true
+  become_user: "{{ db_user }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  postgresql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_pass}}"
+
+- name: Create app database
+  become: true
+  become_user: "{{ db_user }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  postgresql_db:
+    state: present
+    name: "{{ db_name }}"

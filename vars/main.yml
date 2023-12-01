@@ -1,0 +1,5 @@
+---
+
+# Variables used for all roles 
+
+os_user: vagrant

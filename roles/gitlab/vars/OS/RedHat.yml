@@ -1,0 +1,8 @@
+---
+repo_install:
+- curl
+- policycoreutils-python
+- openssh-server
+- perl
+
+gitlab_package_url: https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh

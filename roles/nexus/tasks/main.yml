@@ -1,0 +1,15 @@
+---
+# tasks file for nexus
+
+
+- name: Import variables
+  include_vars: "OS/{{ ansible_os_family }}.yml"
+
+- name: Import dedicated tasks on different OS
+  include: "OS/{{ ansible_os_family }}.yml"
+
+- name: Import pre-setup tasks
+  include: "pre-setup.yml"
+
+- name: Import main tasks
+  include: "nexus-setup.yml"

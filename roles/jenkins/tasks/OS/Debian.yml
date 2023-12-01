@@ -1,0 +1,21 @@
+---
+- name: Add GPG key to apt database for verifying
+  become: true
+  get_url:
+    url: "{{ jenkins_verify_key }}"
+    dest: /usr/share/keyrings/jenkins-keyring.asc
+
+- name: Add Jenkins apt repository.
+  become: true
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] {{ jenkins_package }} binary/"
+    state: present
+    update_cache: true
+
+- name: Install JDK 11 and Jenkins
+  become: true
+  yum:
+    update_cache: true
+    name: "{{ item }}"
+    state: present
+  loop: "{{ repo_install }}"

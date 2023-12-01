@@ -1,0 +1,16 @@
+[Unit]
+Description=SonarQube service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+ExecStart={{ sonarqube_install_path }}/{{ sonarqube_extracted_path }}/bin/linux-x86-64/sonar.sh start
+ExecStop={{ sonarqube_install_path }}/{{ sonarqube_extracted_path }}/bin/linux-x86-64/sonar.sh stop
+LimitNOFILE=65536
+LimitNPROC=4096
+User=sonar
+Group=sonar
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

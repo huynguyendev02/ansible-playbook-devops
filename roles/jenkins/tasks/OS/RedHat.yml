@@ -1,0 +1,20 @@
+---
+- name: Add Jenkins's package information in Yum
+  become: true
+  get_url:
+    url: "{{ jenkins_package }}"
+    dest: "{{ repo_path }}"
+
+- name: Add GPG key to rpm database for verifying
+  become: true
+  rpm_key:
+    key: "{{ jenkins_verify_key }}"
+    state: present
+
+- name: Install JDK 11 and Jenkins
+  become: true
+  yum:
+    update_cache: true
+    name: "{{ item }}"
+    state: present
+  loop: "{{ repo_install }}"

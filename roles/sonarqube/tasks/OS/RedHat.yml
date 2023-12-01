@@ -1,0 +1,19 @@
+---
+- name: Install Java 17
+  become: true
+  yum:
+    name: /home/{{ os_user }}/{{ java17_package | basename}}
+    state: present
+
+- name: Download PostgreSQL
+  become: true
+  yum:
+    name: "{{ postgres_package_url }}"
+    state: present
+
+- name: Install PostgreSQL
+  become: true
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ postgres_package }}"

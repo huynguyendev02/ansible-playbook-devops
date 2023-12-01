@@ -1,0 +1,5 @@
+---
+# defaults file for docker
+
+docker_install_url: https://get.docker.com/
+dest_file: /home/{{ os_user }}/get-docker.sh

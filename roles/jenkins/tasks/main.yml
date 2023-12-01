@@ -1,0 +1,35 @@
+---
+# tasks file for jenkins
+
+- include_vars: "OS/{{ ansible_os_family }}.yml"
+- include: "OS/{{ ansible_os_family }}.yml"
+
+- name: "Apply Jenkins service's configuration"
+  become: true
+  systemd:
+    daemon_reload: true
+
+- name: "Start Jenkins service"
+  become: true
+  service:
+    name:  jenkins
+    state: started
+
+- name: "Enable port 8080 for Jenkins service"
+  become: true
+  firewalld:
+    port: "8080/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+  when: ansible_os_family == "RedHat"
+
+- name: "Get password content for installation"
+  become: true
+  command: cat {{ jenkins_pass_path }}
+  register: jenkins_pass
+  changed_when: false
+
+- name: "Print out password"
+  debug:
+    msg: "First-time installation password for Jenkins: {{ jenkins_pass }}"

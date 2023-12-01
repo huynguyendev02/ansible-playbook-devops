@@ -1,0 +1,21 @@
+---
+# defaults file for sonarqube
+
+sonarqube_install_path: /opt/sonarqube
+sonarqube_install_url: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.9.1.69595.zip
+sonarqube_extracted_path: "{{ sonarqube_install_url | regex_replace('.*/(.+?)\\.zip', '\\1')}}" # Name of extracted folder (without .zip)
+
+# System user
+sonar_user: sonar
+sonar_pass: sonar
+
+# DB user (default)
+db_name: sonarqube
+db_user: postgres
+db_pass: StrongPassword
+
+# DB user
+sonarqube_user: sonarqube
+sonarqube_pass: StrongPassword
+
+sonarqube_service_config_path: /etc/systemd/system/sonarqube.service

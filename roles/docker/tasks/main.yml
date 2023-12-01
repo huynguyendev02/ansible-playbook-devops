@@ -1,0 +1,36 @@
+---
+# tasks file for docker
+
+- name: Download Docker installation script
+  get_url:
+    url: "{{ docker_install_url }}"
+    dest: "{{ dest_file }}"
+
+- name: Append 'execute' permission
+  file:
+    path: "{{ dest_file | basename }}"
+    owner: "{{ os_user }}"
+    mode: "0744"
+
+- name: Verify if 'docker' is installed
+  command: "docker -v"
+  register: docker_command_output
+  ignore_errors: true
+  changed_when: false
+
+- name: Execute the script
+  command: "{{ dest_file }}"
+  when: docker_command_output.changed == false
+
+- name: Add "docker" user to "root" group
+  become: true
+  user:
+   name: docker
+   group: root
+   append: yes
+
+- name: Start and enable docker service
+  become: true
+  service:
+   name: docker
+   enabled: true

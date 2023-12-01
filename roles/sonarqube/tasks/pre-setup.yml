@@ -1,0 +1,56 @@
+---
+- name: Pre-setup convention
+  debug:
+    msg: "{{ item }}"
+  loop:
+  - "Password for user '{{ sonar_user }}' is '{{ sonar_user }}'"
+  - "Password for user '{{ db_user }}' is '{{ db_pass }}'"
+
+- name: Create service user '{{ sonar_user }}'
+  become: true
+  user:
+    name: "{{ sonar_user }}"
+    password: "{{ sonar_pass | password_hash('sha512', 'nexus_salt') }}"
+    comment: "User for Sonarqube service"
+    create_home: true # Default
+
+- name: Create Postgres DB user '{{ db_user }}
+  become: true
+  user:
+    name: "{{ db_user }}"
+    password: "{{ db_pass | password_hash('sha512', 'nexus_salt') }}"
+    comment: "User for PostgreSQL Database service"
+    create_home: true # Default
+
+
+- name: Install pre-requisite package
+  become: true
+  package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ repo_install }}"
+
+
+- name: Change SELinux policies # (Optional)
+  become: true
+  selinux:
+    policy: targeted
+    state: permissive
+  when: ansible_os_family == "RedHat"
+
+- name: Modify RAM for services in system
+  become: true
+  block:
+  - name: "RAM configuration"
+    become: true
+    template:
+      src: system_modify.j2
+      dest: /etc/sysctl.conf
+
+  - name: Apply the above configuration
+    command: sysctl --system
+
+- name: Download Java 17
+  get_url:
+    url: "{{ java17_package }}"
+    dest: /home/{{ os_user }}
